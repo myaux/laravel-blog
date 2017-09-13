@@ -23,7 +23,8 @@ class RouteServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        //
+        //设置sex的范围
+        Route::pattern('sex', '男|女');
 
         parent::boot();
     }

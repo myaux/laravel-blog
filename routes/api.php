@@ -63,3 +63,50 @@ Route::match(['get','post'],'match',function(){
 Route::any('any',function (){
     return 'any';
 });
+
+//路由参数
+
+//必选路由参数
+Route::get('user/{id}',function ($id){
+    return "id is$id";
+});
+
+//多个必选路由参数
+Route::get('student/{name}/age/{age}',function ($name,$age){
+    return "$name age is $age";
+});
+
+//可选路由参数  {  ?}表示参数可选
+Route::get('computer/{name?}',function ($name = null){
+    return "computer name is $name";
+});
+
+//正则表达式约束
+Route::get('page/{id}',function ($id){
+    return "page id is $id";
+})->where('id','[0-9]+');
+
+//全局约束
+//在RouteServiceProvider 中设置
+Route::get('sex/{sex}',function ($sex){
+    return "sex is $sex";
+});
+
+//命名路由
+Route::get('home',function (){
+    $url = route('home');
+    return "home is $url";
+})->name('home');
+
+//访问时会进行一次跳转到home   redirect 执行跳转
+Route::get('go/home',function (){
+    return redirect()->route('home');
+});
+/*
+ * 跳转到百度    可以指定跳转页面
+ * Route::get('go/home',function (){
+ * return redirect('http://www.baidu.com');
+ * });
+ */
+
+
