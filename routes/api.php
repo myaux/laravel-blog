@@ -205,5 +205,21 @@ Route::group(['prefix' => 'test2'],function (){
     });
     //except返回排除指定参数外的其他参数
     //has返回设定的返回值
+
+
+    //request 获取上传文件
+    Route::post('hasFile',function (Request $request){
+        $hasFile = $request->hasFile('file');
+        return $hasFile?'has file':'not has file';
+    });
+    Route::post('file',function (Request $request){
+        //文件通过PHP上传后，会储存到一个默认的文件夹中（tmp）
+        //如果脚本执行结束后，文件没有被移动，那么就会被删除
+        //文件在上传后，会给一个随机的名称
+
+        //laravel request 会通过文件内容来猜测文件格式
+        $file = $request->file('file');
+        return $file->getFilename().'.'.$file->extension();
+    });
 });
 
