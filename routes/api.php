@@ -68,7 +68,7 @@ Route::any('any',function (){
 
 //必选路由参数
 Route::get('user/{id}',function ($id){
-    return "id is$id";
+    return "id is $id";
 });
 
 //多个必选路由参数
@@ -108,5 +108,35 @@ Route::get('go/home',function (){
  * return redirect('http://www.baidu.com');
  * });
  */
+
+//路由组
+
+//路由默认访问命名空间为  App\Http\Controllers\   可写在'App\Http\Controllers\Data'
+Route::group(['namespace'=>'\Date'],function (){
+    Route::get('data','DataController@data');
+    Route::get('show','DataController@show');
+});
+
+//路由前缀
+Route::get('login',function (){
+    return 'login';
+})->prefix('user');
+//group 写法
+Route::group(['prefix'=>'user1'],function (){
+    Route::post('login',function (){
+        return 'login';
+    });
+    Route::get('register',function (){
+        return 'register';
+    });
+    Route::group(['prefix' => 'child'],function (){
+        Route::post('login',function (){
+            return 'child login';
+        });
+        Route::get('register',function (){
+            return 'chile register';
+        });
+    });
+});
 
 
