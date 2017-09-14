@@ -139,4 +139,71 @@ Route::group(['prefix'=>'user1'],function (){
     });
 });
 
+//请求与相应
+
+
+//请求
+Route::group(['prefix' => 'test'],function (){
+    Route::get('request',function (\Illuminate\Http\Request $request){
+        return json_encode($request);
+    });
+    //获取请求路径
+    Route::get('path','testConstroller@path');
+    //获取请求url
+    Route::get('url','testController@url');
+    //获取完整请求url
+    Route::get('fullUrl','testController@fullUrl');
+    //获取请求方法
+    Route::get('method','testController@method');
+    //获取是否为某种方法
+    Route::any('isMethod','testController@isMethod');
+    //获取所有请求参数
+    Route::any('all','testController@all');
+    //获取指定参数
+    Route::get('input','testController@input');
+    //根据动态属性获取值
+    Route::get('name','testController@name');
+    //获取部分数据
+    Route::get('only','testController@only');
+    //排除制定的数据
+    Route::get('except','testController@except');
+    //判断是否有数据
+    Route::get('has','testController@has');
+});
+
+Route::group(['prefix' => 'test2'],function (){
+    Route::get('path',function (Request $request){
+        return $request->path();
+    });
+    Route::get('url',function (Request $request){
+        return $request->url();
+    });
+    Route::get('fullUrl',function (Request $request){
+        return $request->fullUrl();
+    });
+    Route::get('method',function (Request $request){
+        return $request->method();      //返回请求的方法类型
+    });
+    Route::any('isMethod',function (Request $request){
+        return $request->isMethod('GET')?'is get':'not is get';      //判断是否为某种方法
+    });
+    //request获取请求数据
+    Route::any('all',function (Request $request){
+        return $request->all();  //获取所有的输入参数 get，post  参数都会接受
+    });
+    Route::get('input',function (Request $request){
+        return $request->input('name','无名'); //获取特定的值
+    });
+    Route::get('only',function (Request $request){
+        return $request->only(['name','age']); //只返回指定参数的值  未输入默认值null
+    });
+    Route::get('except',function (Request $request){
+        return $request->except(['name','age']);   //排除制定参数的值   类似unset作用
+    });
+    Route::get('has',function (Request $request){
+        return $request->has('name')?'has name':'not has name';   //排除指定参数的值
+    });
+    //except返回排除指定参数外的其他参数
+    //has返回设定的返回值
+});
 
