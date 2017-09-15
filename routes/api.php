@@ -221,5 +221,75 @@ Route::group(['prefix' => 'test2'],function (){
         $file = $request->file('file');
         return $file->getFilename().'.'.$file->extension();
     });
+    Route::post('store',function (Request $request){
+        $file = $request->file('file');
+        $path = $file->store('public/avatar');
+        return $path;
+    });
+
+    Route::get('response',function (){
+        //基础的返回结果
+ //       return response('返回内容',201,['name' => 'tom']);
+
+        $user = new stdClass();
+        $user->name = 'tom';
+        //返回json 数据
+ //      return response()->json(['name' => 'tom','user' => $user],201);
+        return response()->redirectTo('http://www.baidu.com');
+    });
+});
+
+//数据库
+Route::group(['prefix' => 'db-test'],function (){
+    Route::group(['prefix' => 'nativity'],function (){
+        Route::post('select',function (){
+            //DB是一个 facede(门面）， 用于便捷的访问数据库操作对象
+            //select 方法可以执行一个查询语句，并返回结果对象
+            //select 方法，返回对象的集合
+
+            //查询数据库内的表列表
+            //$tables = DB::select('show tables');
+            $result = DB::select("select from * users");
+
+            //Log::info('tables',[$tables]);
+            Log::info('tables',[$result]);
+
+            //return $tables;
+            return $result;
+        });
+        Route::post('insert',function (){
+
+            //insert操作会返回操作是否成功
+            //值允许执行一条语句
+
+            $creted_at = date('Y-m-d H-i-s');
+            $email = time().'@qq.com';
+
+            // ,('bbb', '$email', 'b11111', '$creted_at')
+            // todo...  同时插入两条数据email冲突无法插入
+            $insert_ret = DB::insert("
+            insert
+            into `users` (`name`, `email`, `password`, `created_at`)
+            value ('aaa', '$email', 'a11111', '$creted_at')
+            ");
+            return $insert_ret?'插入成功':'插入失败';
+        });
+        Route::post('update',function (){
+            //update 错做会返回受影响的行数
+            //可以进行参数绑定操作
+            //未被修改的行不算做受影响的行数
+            $affect1 = DB::update("update `users` set `password` = ?",['123456']);
+            $affect2 = DB::update("update `users` set `name` = :name",['name'=>'new name']);
+            return [
+                'affect1' => $affect1,
+                'affect2' => $affect2
+            ];
+        });
+        //delete 操作返回被删除的行数
+        //statements用于执行没有返回值的语句
+        //auto-transaction自动事务   sql语句成功时自动提交，失败时自动回滚
+        //transaction   手动事务
+        //bind  参数绑定
+    });
 });
 
