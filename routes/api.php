@@ -328,6 +328,25 @@ Route::group(['prefix' => 'db-test'],function (){
             ];
         });
     });
+    Route::group(['prefix' => 'structure'],function (){
+        Route::post('get',function (){
+            //获取所有符合条件的值
+           return DB::table('users')->get();
+        });
+        Route::post('first',function (){
+            //获取第一条符合条件的数据
+            $ret = DB::table('users')->first();
+            return response()->json($ret);//json可以接受object类型，只要能够进行json编码的类型都可以接受
+        });
+        Route::post('value',function (){
+            //只返回单个值
+            return DB::table('users')->value('email');
+        });
+        Route::post('pluck',function (){
+            return DB::table('users')->pluck('email');
+        });
+        //todo ...
+    });
 
 });
 
