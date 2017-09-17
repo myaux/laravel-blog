@@ -279,17 +279,55 @@ Route::group(['prefix' => 'db-test'],function (){
             //可以进行参数绑定操作
             //未被修改的行不算做受影响的行数
             $affect1 = DB::update("update `users` set `password` = ?",['123456']);
-            $affect2 = DB::update("update `users` set `name` = :name",['name'=>'new name']);
+            $affect2 = DB::update("update `users` set `name` = :name",['name'=>'new-name']);
             return [
                 'affect1' => $affect1,
                 'affect2' => $affect2
             ];
         });
-        //delete 操作返回被删除的行数
-        //statements用于执行没有返回值的语句
-        //auto-transaction自动事务   sql语句成功时自动提交，失败时自动回滚
-        //transaction   手动事务
-        //bind  参数绑定
+        Route::post('delete',function (){
+            //delete 操作返回被删除的行数
+            $affect = DB::delete("delete from `users` where name = :name",['name'=>'new-name']);
+            return $affect;
+        });
+        Route::post('statements',function (){
+            //statements用于执行没有返回值的语句
+            DB::statement("drop table `passwore_resets`");
+        });
+        Route::post('auto-transaction',function (){
+            //auto-transaction自动事务   sql语句成功时自动提交，失败时自动回滚
+            DB::update("update `users` set `name` = :name",['name' => 'new-name']);
+            throw new Exception('手动抛出一个异常');
+            //事务中出现异常所有事务都会被还原
+        });
+        Route::post('transaction',function (){
+            //transaction   手动事务
+            //包含beginTransaction ， commit rollBack
+            DB::beginTransaction();
+            try {
+                DB::update("update `users` set `name` = :name",['name' => 'new-name']);
+                throw new Exception('手动抛出一个异常');
+                DB::commit();
+                return '事务完成了，数据被提交到数据库中';
+            }catch (Exception $exception){
+                DB::rollBack();
+                return '事务回滚了，数据操作被取消';
+            }
+        });
+        Route::post('bind',function (){
+            //参数绑定
+
+            //命名绑定
+            $affected1 = DB::update("update `users` set `name` = :name, `password` = :password",['name' => 'new-name','password' => '0987654321']);
+
+            //位置绑定
+            $affected2 = DB::update("update `users` set `name` = ?,`password` = ?",['this-name', '111111']);
+            return [
+                '1' => $affected1,
+                '2' => $affected2
+            ];
+        });
     });
+
 });
 
