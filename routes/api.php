@@ -328,6 +328,7 @@ Route::group(['prefix' => 'db-test'],function (){
             ];
         });
     });
+    //构造函数
     Route::group(['prefix' => 'structure'],function (){
         Route::post('get',function (){
             //获取所有符合条件的值
@@ -343,10 +344,161 @@ Route::group(['prefix' => 'db-test'],function (){
             return DB::table('users')->value('email');
         });
         Route::post('pluck',function (){
+            //查询所有的执行的列的数据
             return DB::table('users')->pluck('email');
         });
-        //todo ...
+        Route::post('polymeric',function (){
+            //count (统计符合条件数据条数)
+            // max min sum
+            return DB::table('users')->count();
+        });
+        Route::post('select',function (){
+            //select
+            //raw 使用原生表达式
+            //使用别名时，直接写作name as real_name  ->select(['name as real_name','name'])
+            //select count（id） from users;   count（id）应该是当作函数来执行而不是字段
+            //通过raw 方法来设定原生sql
+
+//            return DB::table('users')
+//                ->select(['name','email'])
+//                ->get();
+            return DB::table('users')
+                ->select(DB::raw('count(id) as count'))
+                ->get();
+        });
+        Route::group(['prefix' => 'where'],function (){
+            Route::post('where',function (){
+                //where 的使用
+                //where($column, $op, $value)
+//                return DB::table('users')
+//                    ->where('name','=','tom')
+//                    ->where('id','=','4')
+//                    ->get();
+
+                //默认衔接符为 = 号  可以省略掉
+//                return DB::table('users')
+//                    ->where('name','tom')
+//                    ->get();
+
+                return DB::table('users')
+                    ->where([['name','=','tom'],['id','=','4']])
+                    ->get();
+            });
+            Route::post('orwhere',function (){
+                return DB::table('users')
+                    ->orWhere('name','tom')
+                    ->orWhere('id',5)
+                    ->get();
+            });
+            Route::post('whereBetween',function (){});
+            Route::post('whereIn',function (){});
+            Route::post('whereDate',function (){});
+            Route::post('whereColumn',function (){});
+        });
+        Route::group(['prefix' => 'most'],function (){
+            Route::post('orderby',function (){});
+            Route::post('inRandomOrder',function (){});
+            Route::post('group',function (){});
+            Route::post('skip',function (){});
+            Route::post('tack',function (){});
+        });
+        Route::post('insert',function (){
+            //insert
+            //insetGetId
+        });
+        Route::post('update',function (){
+            //update
+            //increment
+            //decrement
+        });
+        Route::post('delete',function (){
+            //delete
+            //truncate
+        });
+        Route::post('paging',function (){
+            //
+            //skip tack
+        });
     });
 
 });
 
+
+//Route::group(['prefix' => 'blog'],function (){
+//    //显示博客列表
+//    Route::get('show','BlogController@show');
+//    //获取博客详情
+//    Route::get('index/{id}','BlogController@index');
+//    //添加一条博客
+//    Route::post('store','BlogController@store');
+//});
+
+Route::group(['prefix' => 'test-model'],function (){
+    //模型插入数据操作
+    Route::get('create',function (Request $request){
+        //如何使用模型来插入一条数据
+        //使用create方法来插入数据，返回一个模型对象
+
+        //第一种创建
+        $input = [
+           'user_id' => 100,
+            'title' => '博客的标题',
+            'content' => '博客的内容',
+            'ip' => $request->ip()
+        ];
+//
+//        $blog = \App\Blog::create($input);
+//        return response()->json($blog);
+
+        //第二种插入
+        $blog = new \App\Blog($input);
+        $blog->save();
+    });
+    //根据主键查询
+    Route::get('index/{id}',function ($id){
+        return response()->json(\App\Blog::find($id));
+    });
+    //列表查询
+    Route::get('show',function ($id){
+        return response()->json(\App\Blog::get($id));
+    });
+    //条件查询，查询构造器和以前的DB对象一样用
+    Route::get('whereShow',function ($user_id){
+        $list = \App\Blog::where('user_id',$user_id)->get();
+        foreach ($list as &$item){
+            /*
+             * @var  \App\Blog  $item
+             */
+            $item->area = '武汉';
+        }
+        return response()->json($list);
+    });
+    //修改数据
+    Route::post('update/{id}',function (Request $request,$id){
+        if (!$request->has('title')) return response('title未设置',400);
+        $title = $request->input('title');
+
+//        //获取模型
+//        $blog = \App\Blog::find($id);
+//        //修改模型值
+//        $blog->title = $title;
+//        //保存结果
+//        $blog->save();
+//
+//        return response()->json(\App\Blog::find($id));
+
+        //批量修改
+        \App\Blog::where('id',7)->update(['title' => '新的标题']);
+    });
+    //删除操作
+    Route::delete('delete/{id}',function ($id){
+        //第一种删除方式
+//        \App\Blog::destroy($id);
+        //第二种删除方式
+//        $blog = \App\Blog::find($id);
+//        return response()->json($blog->delete());
+        //删除表中的所有数据
+        //todo
+
+    });
+});
